@@ -17,9 +17,8 @@ export default class DragDrop {
    * @param editor: object
    *   editor — Editor.js instance object
    */
-  constructor({ configuration, blocks, toolbar, save }, borderStyle) {
+  constructor({ configuration, blocks, toolbar, save }) {
     this.toolbar = toolbar;
-    this.borderStyle = borderStyle || '1px dashed #aaa';
     this.api = blocks;
     this.holder = typeof configuration.holder === 'string' ? document.getElementById(configuration.holder) : configuration.holder;
     this.readOnly = configuration.readOnly;
@@ -77,13 +76,17 @@ export default class DragDrop {
   setBorderBlocks(allBlocks, blockFocused) {
     Object.values(allBlocks).forEach((block) => {
       const blockContent = block.querySelector('.ce-block__content');
-      if (block !== blockFocused) {
-        blockContent.style.removeProperty('border-top');
-        blockContent.style.removeProperty('border-bottom');
-      } else {
+
+      if (block === blockFocused) {
         const index = Object.keys(allBlocks).find((key) => allBlocks[key] === blockFocused);
-        if (index > this.startBlock) blockContent.style.borderBottom = this.borderStyle || borderStyle;
-        else blockContent.style.borderTop = this.borderStyle;
+        if (index > this.startBlock) {
+          blockContent.classList.toggle('ce-block--drag-drop--bottom', true);
+        } else {
+          blockContent.classList.toggle('ce-block--drag-drop--top', true);
+        }
+      } else {
+        blockContent.classList.toggle('ce-block--drag-drop--top', false);
+        blockContent.classList.toggle('ce-block--drag-drop--bottom', false);
       }
     });
   }
@@ -98,8 +101,8 @@ export default class DragDrop {
         const dropTarget = this.getDropTarget(target);
         if (dropTarget) {
           const blockContent = dropTarget.querySelector('.ce-block__content');
-          blockContent.style.removeProperty('border-top');
-          blockContent.style.removeProperty('border-bottom');
+          blockContent.classList.toggle('ce-block--drag-drop--top', false);
+          blockContent.classList.toggle('ce-block--drag-drop--bottom', false);
           this.endBlock = this.getTargetPosition(dropTarget);
           this.moveBlocks();
         }
